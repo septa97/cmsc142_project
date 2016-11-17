@@ -3,8 +3,10 @@
 #include <unistd.h>
 
 void solve(int **, int, int);
+void writeToFile(int **, int n);
 void print_grid(int **, int, int, int, int, int, int, int);
 int valid(int **, int, int, int, int, int);
+int x_same_number(int **, int, int, int, int, int);
 void move_to_next_cell(int *, int *, int);
 void move_to_previous_cell(int *, int *, int);
 int row_same_number(int **, int, int, int, int);
@@ -57,6 +59,8 @@ int main() {
 		}
 	}
 
+	fclose(fp);
+
 	return 0;
 }
 
@@ -75,21 +79,16 @@ void solve(int **grid, int n, int subgrid_size) {
 		}
 	}
 
-	printf("\nNOPTS\n");
 	// Initialize all the elements of the array "nopts" to zero
 	for (i = 0; i < n*n+2; i++) {
 		nopts[i] = 0;
-		printf("%3d", nopts[i]);
 	}
 
-	printf("\nOPTIONS\n");
 	// Initialize all the elements of the 2D array "options" to zero
 	for (i = 0; i < n*n+2; i++) {
 		for (j = 0; j < n+2; j++) {
 			options[i][j] = 0;
-			printf("%3d", options[i][j]);
 		}
-		printf("\n");
 	}
 
 	move = start = 0;
@@ -103,7 +102,7 @@ void solve(int **grid, int n, int subgrid_size) {
 			solutions += 1;
 			move_to_previous_cell(&i, &j, n);
 			print_grid(grid, solutions, i, j, move, nopts[move], options[move][nopts[move]], n);
-			// sleep(5);
+			writeToFile(grid, n);
 			printf("Backtracking... (Solution found)\n");
 
 			// Check if the cell is fixed
@@ -198,9 +197,26 @@ void solve(int **grid, int n, int subgrid_size) {
 		}
 
 		// sleep(1);
+		// print_grid(grid, solutions, i, j, move, nopts[move], options[move][nopts[move]], n);
 	}
 
 	printf("Solutions found: %d\n", solutions);
+}
+
+void writeToFile(int **grid, int n) {
+	FILE *fp = fopen("output.out", "a");
+	int i, j;
+
+	fprintf(fp, "----------------\n");
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			fprintf(fp, "%3d", grid[i][j]);
+		}
+		fprintf(fp, "\n");
+	}
+	fprintf(fp, "----------------\n");
+
+	fclose(fp);
 }
 
 void print_grid(int **grid, int solutions, int i, int j, int move, int nopts_move, int options_move, int n) {
@@ -219,30 +235,37 @@ int valid(int **grid, int i, int j, int num, int n, int subgrid_size) {
 	if (
 		!row_same_number(grid, i, num, j, n) &&
 		!column_same_number(grid, j, num, i, n) &&
-		!subgrid_same_number(grid, i, j, num, n, subgrid_size)
+		!subgrid_same_number(grid, i, j, num, n, subgrid_size) &&
+		((i == j || i + j == n-1) ? !x_same_number(grid, i, j, num, n, subgrid_size) : 1)
 		) return 1;
 
 	return 0;
 }
 
-void move_to_next_cell(int *i, int *j, int n) {
-	if (*j == n-1) {
-		(*i)++;
-		*j = 0;
-	}
-	else {
-		(*j)++;
-	}
-}
+int x_same_number(int **grid, int row, int column, int num, int n, int subgrid_size) {
+	printf("Checking for Sudoku X\n");
+	int i, j, x, y;
 
-void move_to_previous_cell(int *i, int *j, int n) {
-	if (*j == 0) {
-		(*i)--;
-		*j = n-1;
+	int subgrid_row = row / subgrid_size;
+	int subgrid_col = column / subgrid_size;
+
+	for (i = 0; i < n; i++) {
+		for (j = 0; j < n; j++) {
+			x = i / subgrid_size;
+			y = j / subgrid_size;
+
+			if (grid[i][j] != 0 && i == j && (subgrid_row != x && subgrid_col != y)) {
+				printf("(i == j) Checking if %d is the same as %d\n", num, grid[i][j]);
+				if (grid[i][j] == num) return 1;
+			}
+			else if (grid[i][j] != 0 && i + j == n-1 && (subgrid_row != x && subgrid_col != y)) {
+				printf("(i+j == n-1) Checking if %d is the same as %d\n", num, grid[i][j]);
+				if (grid[i][j] == num) return 1;
+			}
+		}
 	}
-	else {
-		(*j)--;
-	}
+
+	return 0;
 }
 
 int row_same_number(int **grid, int row, int num, int current_column, int n) {
@@ -286,4 +309,24 @@ int subgrid_same_number(int **grid, int row, int col, int num, int n, int subgri
 	}
 
 	return 0;
+}
+
+void move_to_next_cell(int *i, int *j, int n) {
+	if (*j == n-1) {
+		(*i)++;
+		*j = 0;
+	}
+	else {
+		(*j)++;
+	}
+}
+
+void move_to_previous_cell(int *i, int *j, int n) {
+	if (*j == 0) {
+		(*i)--;
+		*j = n-1;
+	}
+	else {
+		(*j)--;
+	}
 }
