@@ -2,7 +2,8 @@ public class Solver {
 	private int originalGrid[][];
 	private int subgridSize;
 	private int n;
-	private boolean x,y; 
+	private boolean x,y;
+
 	public Solver(int originalGrid[][], int subgridSize, int n) {
 		this.originalGrid = originalGrid;
 		this.subgridSize = subgridSize;
@@ -170,11 +171,12 @@ public class Solver {
 			!columnSameNumber(grid, j, num, i) &&
 			!subgridSameNumber(grid, i, j, num) &&
 			(x && (i == j || i+j == n-1) ? !XSameNumber(grid, i, j, num) : true) &&
-			(y &&((i == j && j <= n/2) || (i+j == n-1 && j >= n/2)) ? !YSameNumber(grid, i, j, num) : true)
+			(y && ((i == j && j <= n/2) || (i+j == n-1 && j >= n/2) || (i > n/2 && j == n/2)) ? !YSameNumber(grid, i, j, num) : true)
 			) return true;
 
 		return false;
 	}
+
 	private boolean checkIfXValid(int grid[][]) {
 		for (int a = 0; a < n; a++) {
 			for (int b = 0; b < n; b++) {
@@ -206,13 +208,13 @@ public class Solver {
 	}
 
 	private boolean checkIfYValid(int grid[][]) {
-		if(subgridSize % 2 == 0){
+		if (subgridSize % 2 == 0) {
 			return false;
 		}
 		
 		for (int a = 0; a < n; a++) {
 			for (int b = 0; b < n; b++) {
-				if ((a == b && b <= n/2) || (a+b == n-1 && b >= n/2)) {
+				if ((a == b && b <= n/2) || (a+b == n-1 && b >= n/2) || (a > n/2 && b == n/2)) {
 					int x, y;
 					int subgridRow = a / subgridSize;
 					int subgridCol = b / subgridSize;
@@ -222,11 +224,19 @@ public class Solver {
 							x = i / subgridSize;
 							y = j / subgridSize;
 
-							if (grid[i][j] != 0 && i == j && j <= n/2 && a == b && b <= n/2 && (subgridRow != x && subgridCol != y)) {
-								if (grid[i][j] == grid[a][b]) return true;
+							if (grid[i][j] != 0 &&
+								(i == j && j <= n/2 || i > n/2 && j == n/2) &&
+								(a == b && b <= n/2 || a > n/2 && b == n/2) &&
+								(subgridRow != x && subgridCol != y))
+							{
+								if (grid[i][j] == grid[a][b]) return false;
 							}
-							else if (grid[i][j] != 0 && i+j == n-1 && j >= n/2 && a+b == n-1 && b >= n/2 && (subgridRow != x && subgridCol != y)) {
-								if (grid[i][j] == grid[a][b]) return true;
+							else if (grid[i][j] != 0 &&
+								(i+j == n-1 && j >= n/2 || i > n/2 && j == n/2) &&
+								(a+b == n-1 && b >= n/2 || a > n/2 && b == n/2) &&
+								(subgridRow != x && subgridCol != y))
+							{
+								if (grid[i][j] == grid[a][b]) return false;
 							}
 						}
 					}
@@ -247,10 +257,10 @@ public class Solver {
 				x = i / subgridSize;
 				y = j / subgridSize;
 
-				if (grid[i][j] != 0 && i == j && j <= n/2 && (subgridRow != x && subgridCol != y)) {
+				if (grid[i][j] != 0 && (i == j && j <= n/2 || i > n/2 && j == n/2) && (subgridRow != x && subgridCol != y)) {
 					if (grid[i][j] == num) return true;
 				}
-				else if (grid[i][j] != 0 && i+j == n-1 && j >= n/2 && (subgridRow != x && subgridCol != y)) {
+				else if (grid[i][j] != 0 && (i+j == n-1 && j >= n/2 || i > n/2 && j == n/2) && (subgridRow != x && subgridCol != y)) {
 					if (grid[i][j] == num) return true;
 				}
 			}
