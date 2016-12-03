@@ -5,13 +5,15 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class Main {
-	private static int N;
+	private static Solver SOLVER;
+	private static int N,sub;
+	private static int[][] board;
+	private static boolean selectedY,selectedX;
 
 	public static void main(String[] args) throws IOException {
-		int[][] board = ReadFile("input.in");
-
-
+		ReadFile("input.in");
 		
+		SOLVER = new Solver(board, sub, N);
 		
 		JFrame frame = new JFrame("SUDOKU");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -48,7 +50,7 @@ public class Main {
 		sol.setText("Number Of Solutions: ");
 		
 
-		JLabel output = new JLabel("69");
+		final JLabel output = new JLabel("");
 		output.setBounds(90,60,200,30);
 
 
@@ -59,13 +61,57 @@ public class Main {
 		JPanel boardPanel = new JPanel();
 		boardPanel.setLayout(new GridLayout(N,N));
 		
+		final int a,b;
 		
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
 				panelButton[i][j] = new JButton(String.valueOf(board[i][j]));
+				panelButton[i][j].addMouseListener(new MouseListener(){
+					public void mouseClicked(MouseEvent e){	
+						String temp = JOptionPane.showInputDialog("INPUT: ");
+					//	board[i][j] = Integer.parseInt(temp);
+					//	panelButton.setText(temp);
+					}
+					public void mouseEntered(MouseEvent e){
+						
+					}
+					public void mouseExited(MouseEvent e){
+						
+					}
+					public void mousePressed(MouseEvent e){
+
+					}
+					public void mouseReleased(MouseEvent e){
+						
+					}
+				});
 				boardPanel.add(panelButton[i][j]);
 			}
-		}		
+		}
+			
+
+			
+		solve.addMouseListener(new MouseListener(){
+			public void mouseClicked(MouseEvent e){	
+				selectedX = sudokuX.isSelected();
+				selectedY = sudokuY.isSelected();
+				
+				int solutions =  SOLVER.solve(selectedX,selectedY);
+				output.setText(solutions + "");
+			}
+			public void mouseEntered(MouseEvent e){
+				
+			}
+			public void mouseExited(MouseEvent e){
+				
+			}
+			public void mousePressed(MouseEvent e){
+
+			}
+			public void mouseReleased(MouseEvent e){
+				
+			}
+		});		
 				
 		
 
@@ -85,7 +131,7 @@ public class Main {
 		
 	}
 
-	private static int[][] ReadFile(String path) throws IOException {
+	private static void ReadFile(String path) throws IOException {
 		// Load the file
 		FileReader fileReader = null;
 		try {
@@ -99,26 +145,30 @@ public class Main {
 
 		// Read the subgridSize
 		int subgridSize = Integer.parseInt(bufferedReader.readLine());
-		N = subgridSize * subgridSize;
-		String contents[] = new String[N];
+		sub = subgridSize;
+		int n = subgridSize * subgridSize;
+		N = n;
+		String contents[] = new String[n];
 
-		for (int i = 0; i < N; i++) {
+		for (int i = 0; i < n; i++) {
 			contents[i] = bufferedReader.readLine();
 		}
 
-		int board[][] = new int[N][N];
+		int grid[][] = new int[n][n];
 
 		// Put to the 2D array
-		for (int i = 0; i < N; i++) {
+		for (int i = 0; i < n; i++) {
 			String numbers[] = contents[i].split(" ");
 			
-			for (int j = 0; j < N; j++) {
-				board[i][j] = Integer.parseInt(numbers[j]);
+			for (int j = 0; j < n; j++) {
+				grid[i][j] = Integer.parseInt(numbers[j]);
 			}
 		}
+		
+		board = grid;
 
 		bufferedReader.close();
 
-		return board;
+
 	}
 }
