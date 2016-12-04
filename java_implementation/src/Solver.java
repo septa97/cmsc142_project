@@ -191,11 +191,9 @@ public class Solver {
 							y = j / subgridSize;
 
 							if (grid[i][j] != 0 && i == j && a == b && (subgridRow != x && subgridCol != y)) {
-								System.out.println("Checking if " + grid[a][b] + " is equal to " + grid[i][j]);
 								if (grid[i][j] == grid[a][b]) return false;
 							}
 							else if (grid[i][j] != 0 && i+j == n-1 && a+b == n-1 && (subgridRow != x && subgridCol != y)) {
-								System.out.println("Checking if " + grid[a][b] + " is equal to " + grid[i][j]);
 								if (grid[i][j] == grid[a][b]) return false;
 							}
 						}

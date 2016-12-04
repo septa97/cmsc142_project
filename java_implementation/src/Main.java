@@ -65,7 +65,10 @@ public class Main {
 		
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
-				panelButton[i][j] = new JButton(String.valueOf(board[i][j]));
+				panelButton[i][j] = new JButton(String.valueOf(board[i][j]).equals("0") ? "" : String.valueOf(board[i][j]));
+				panelButton[i][j].setBackground(Color.BLACK);
+				panelButton[i][j].setForeground(Color.WHITE);
+				panelButton[i][j].setFont(new Font("Arial", Font.PLAIN, 40));
 				panelButton[i][j].addMouseListener(new MouseListener(){
 					public void mouseClicked(MouseEvent e){	
 						String temp = JOptionPane.showInputDialog("INPUT: ");
