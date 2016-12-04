@@ -6,45 +6,53 @@ import java.awt.event.*;
 
 public class Main {
 	private static Solver SOLVER;
-	private static int N,sub;
+	private static int N, sub;
 	private static int[][] board;
 	private static boolean selectedY,selectedX;
 
 	public static void main(String[] args) throws IOException {
 		ReadFile("input.in");
 		
+		// Create a solver instance
 		SOLVER = new Solver(board, sub, N);
 		
+		// Create the main frame
 		JFrame frame = new JFrame("SUDOKU");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(800,600));
 		
+		// Create a 2D array of JButtons
 		final JButton[][] panelButton = new JButton[N][N];
 
+		// Get the main container
 		final Container c = frame.getContentPane();
 		c.setLayout(new BorderLayout());
 		final JPanel optionsPanel = new JPanel();
 		optionsPanel.setLayout(new GridLayout(3,1,0,0));
 
-
+		// Create the checkbox panel
 		JPanel cbPanel = new JPanel();
 
-
+		// Create the checkbox for sudoku X and Y
       	final JCheckBox sudokuX = new JCheckBox("Sudoku X");
       	final JCheckBox sudokuY = new JCheckBox("Sudoku Y");
       	
 		cbPanel.add(sudokuX);
 		cbPanel.add(sudokuY);
 		
+		// Create the solve panel
 		JPanel solvePanel = new JPanel();
-				
+		
+		// Create the "Solve" button
 		JButton solve = new JButton("Solve");
 		solve.setPreferredSize(new Dimension(200,180));
 		solvePanel.add(solve);
 
+		// Create the panel where the number of solutions will be displayed
 		JPanel solutionPanel = new JPanel();
 		solutionPanel.setLayout(null);
 
+		// Create the label of the number of solutions
 		JLabel sol = new JLabel();
 		sol.setBounds(20,30,200,30);
 		sol.setText("Number Of Solutions: ");
@@ -57,66 +65,41 @@ public class Main {
 		solutionPanel.add(sol);
 		solutionPanel.add(output);
 
-
+		// Create the panel for the sudoku board
 		JPanel boardPanel = new JPanel();
 		boardPanel.setLayout(new GridLayout(N,N));
 		
-		final int a,b;
-		
 		for (int i = 0; i < N; i++) {
 			for (int j = 0; j < N; j++) {
+				final int a = i, b = j;
 				panelButton[i][j] = new JButton(String.valueOf(board[i][j]).equals("0") ? "" : String.valueOf(board[i][j]));
 				panelButton[i][j].setBackground(Color.BLACK);
 				panelButton[i][j].setForeground(Color.WHITE);
 				panelButton[i][j].setFont(new Font("Arial", Font.PLAIN, 40));
-				panelButton[i][j].addMouseListener(new MouseListener(){
-					public void mouseClicked(MouseEvent e){	
+				
+				// Add a listener whenever the button is clicked
+				panelButton[i][j].addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e){	
 						String temp = JOptionPane.showInputDialog("INPUT: ");
-					//	board[i][j] = Integer.parseInt(temp);
-					//	panelButton.setText(temp);
-					}
-					public void mouseEntered(MouseEvent e){
-						
-					}
-					public void mouseExited(MouseEvent e){
-						
-					}
-					public void mousePressed(MouseEvent e){
-
-					}
-					public void mouseReleased(MouseEvent e){
-						
+						board[a][b] = Integer.parseInt(temp);
+						panelButton[a][b].setText(temp.equals("0") ? "" : temp);
 					}
 				});
+
 				boardPanel.add(panelButton[i][j]);
 			}
 		}
-			
-
-			
-		solve.addMouseListener(new MouseListener(){
-			public void mouseClicked(MouseEvent e){	
+		
+		// Add a listener for the "Solve" button
+		solve.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e){	
 				selectedX = sudokuX.isSelected();
 				selectedY = sudokuY.isSelected();
 				
-				int solutions =  SOLVER.solve(selectedX,selectedY);
+				int solutions =  SOLVER.solve(selectedX, selectedY);
 				output.setText(solutions + "");
 			}
-			public void mouseEntered(MouseEvent e){
-				
-			}
-			public void mouseExited(MouseEvent e){
-				
-			}
-			public void mousePressed(MouseEvent e){
-
-			}
-			public void mouseReleased(MouseEvent e){
-				
-			}
 		});		
-				
-		
 
 		optionsPanel.add(solutionPanel);
 		optionsPanel.add(cbPanel);
@@ -129,9 +112,6 @@ public class Main {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
-		
-		
 	}
 
 	private static void ReadFile(String path) throws IOException {
@@ -171,7 +151,5 @@ public class Main {
 		board = grid;
 
 		bufferedReader.close();
-
-
 	}
 }
