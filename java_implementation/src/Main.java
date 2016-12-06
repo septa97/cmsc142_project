@@ -1,6 +1,7 @@
 import java.util.*;
 import java.io.*;
 import javax.swing.*;
+import javax.swing.filechooser.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -9,26 +10,68 @@ public class Main {
 	private static int N, sub;
 	private static int[][] board;
 	private static boolean selectedY,selectedX;
+	private static JFrame frame;
+	private static Container c;
+	private static JPanel optionsPanel;
 
 	public static void main(String[] args) throws IOException {
-		ReadFile("input.in");
-		
-		// Create a solver instance
-		SOLVER = new Solver(board, sub, N);
+		// Filter
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(".in files", "in");
+
+		// File Chooser
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setFileFilter(filter);
+
+		// ReadFile("input.in");
 		
 		// Create the main frame
-		JFrame frame = new JFrame("SUDOKU");
+		frame = new JFrame("SUDOKU");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setPreferredSize(new Dimension(800,600));
-		
-		// Create a 2D array of JButtons
-		final JButton[][] panelButton = new JButton[N][N];
 
 		// Get the main container
-		final Container c = frame.getContentPane();
+		c = frame.getContentPane();
 		c.setLayout(new BorderLayout());
-		final JPanel optionsPanel = new JPanel();
-		optionsPanel.setLayout(new GridLayout(3,1,0,0));
+		optionsPanel = new JPanel();
+		optionsPanel.setLayout(new GridLayout(4,1,0,0));
+
+		// Create the "Browse" button
+		JButton browse = new JButton("Browse");
+		browse.setPreferredSize(new Dimension(200,50));
+		optionsPanel.add(browse);
+
+		// Add an action listener to the "Browse" button
+		browse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int returnVal = fileChooser.showOpenDialog(c);
+
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File inputFile = fileChooser.getSelectedFile();
+
+					try {
+						ReadFile(inputFile);
+						init();
+					} catch (IOException exception) {
+						exception.printStackTrace();
+					}
+				}
+			}
+		});
+
+		c.add(optionsPanel,BorderLayout.EAST);
+		
+		frame.pack();
+		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+	}
+
+	private static void init() {
+		// Create a solver instance
+		SOLVER = new Solver(board, sub, N);
+
+		// Create a 2D array of JButtons
+		final JButton[][] panelButton = new JButton[N][N];
 
 		// Create the checkbox panel
 		JPanel cbPanel = new JPanel();
@@ -36,7 +79,7 @@ public class Main {
 		// Create the checkbox for sudoku X and Y
       	final JCheckBox sudokuX = new JCheckBox("Sudoku X");
       	final JCheckBox sudokuY = new JCheckBox("Sudoku Y");
-      	
+
 		cbPanel.add(sudokuX);
 		cbPanel.add(sudokuY);
 		
@@ -45,7 +88,7 @@ public class Main {
 		
 		// Create the "Solve" button
 		JButton solve = new JButton("Solve");
-		solve.setPreferredSize(new Dimension(200,180));
+		solve.setPreferredSize(new Dimension(200,100));
 		solvePanel.add(solve);
 
 		// Create the panel where the number of solutions will be displayed
@@ -88,8 +131,8 @@ public class Main {
 						public void actionPerformed(ActionEvent e){	
 							String temp = JOptionPane.showInputDialog("INPUT: ");
 							board[a][b] = Integer.parseInt(temp);
-							System.out.println(board[a][b]);
-							if(!SOLVER.valid(board,a,b,board[a][b],x,y)){
+							
+							if (!SOLVER.valid(board,a,b,board[a][b],x,y)) {
 								panelButton[a][b].setBackground(Color.RED);
 							}
 							else{
@@ -98,8 +141,8 @@ public class Main {
 							}
 							
 							panelButton[a][b].setText(temp.equals("0") ? "" : temp);
-							if(Solved(panelButton)){
-								System.out.println("Tang ina mo jepoy dizon");
+							if (Solved(panelButton)) {
+								JOptionPane.showMessageDialog(null, "SOLVED!", "SOLVED!", JOptionPane.INFORMATION_MESSAGE);
 							}
 						}
 					});
@@ -108,32 +151,32 @@ public class Main {
 				boardPanel.add(panelButton[i][j]);
 			}
 		}
-		
+
 		// Add a listener for the "Solve" button
 		solve.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){	
 				selectedX = sudokuX.isSelected();
 				selectedY = sudokuY.isSelected();
 				
-				if(Solvable(panelButton)){
-					int solutions =  SOLVER.solve(selectedX, selectedY);
-					output.setText(solutions + "");
-				}		
+				if (Solved(panelButton)) {
+					JOptionPane.showMessageDialog(null, "ALREADY SOLVED!", "ALREADY SOLVED!", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else if (Solvable(panelButton)) {
+					String solutions = SOLVER.solve(selectedX, selectedY);
+					output.setText(solutions);
+				}
 				
 			}
-		});		
+		});
+
+		c.add(boardPanel,BorderLayout.CENTER);
 
 		optionsPanel.add(solutionPanel);
 		optionsPanel.add(cbPanel);
 		optionsPanel.add(solvePanel);
-		
-		c.add(boardPanel,BorderLayout.CENTER);
-		c.add(optionsPanel,BorderLayout.EAST);
-		
-		frame.pack();
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+
+		frame.validate();
+		frame.repaint();
 	}
 
 	private static boolean Solved(JButton[][] panelButton){
@@ -154,15 +197,16 @@ public class Main {
 				}
 			}
 		}
+
 		return true;
 	}
 
 
-	private static void ReadFile(String path) throws IOException {
+	private static void ReadFile(File file) throws IOException {
 		// Load the file
 		FileReader fileReader = null;
 		try {
-			fileReader = new FileReader(path);
+			fileReader = new FileReader(file);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}

@@ -14,7 +14,7 @@ public class Solver {
 		return originalGrid;
 	}
 
-	public int solve(boolean selectedX,boolean selectedY) {
+	public String solve(boolean selectedX,boolean selectedY) {
 		int grid[][] = new int[n][n];
 		int nopts[] = new int[n*n+2];
 		int options[][] = new int[n*n+2][n+2];
@@ -34,13 +34,13 @@ public class Solver {
 		// Check if X is valid 
 		if (selectedX && !checkIfXValid(grid)) {
 			System.out.println("X is not valid!");
-			return 0;
+			return "N/A";
 		}
 
 		// Check if Y is valid
 		if (selectedY && !checkIfYValid(grid)) {
 			System.out.println("Y is not valid!");
-			return 0;
+			return "N/A";
 		}
 		
 
@@ -162,7 +162,7 @@ public class Solver {
 		}
 
 		System.out.println("Solutions found: " + solutions);
-		return solutions;
+		return Integer.toString(solutions);
 	}
 
 	public boolean valid(int grid[][], int i, int j, int num,boolean x,boolean y) {
