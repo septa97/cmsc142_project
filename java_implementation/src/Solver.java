@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class Solver {
 	private int originalGrid[][];
 	private int subgridSize;
@@ -23,6 +25,7 @@ public class Solver {
 		int temp[];
 		this.x = selectedX;
 		this.y = selectedY;
+		ArrayList<int[][]> solutionList = new ArrayList<int[][]>();
 
 		// Create a copy of the original grid
 		for (int i = 0; i < n; i++) {
@@ -52,6 +55,16 @@ public class Solver {
 		while (i >= 0 && j >= 0) {
 			// If solved, look for another possible solution
 			if (!(i < n && j < n)) {
+				int[][] solution = new int[n][n];
+
+				for (int x = 0; x < n; x++) {
+					for (int y = 0; y < n; y++) {
+						solution[x][y] = grid[x][y];
+					}
+				}
+
+				solutionList.add(solution);
+
 				solutions++;
 				temp = moveToPreviousCell(i, j);
 				i = temp[0];
@@ -162,6 +175,14 @@ public class Solver {
 		}
 
 		System.out.println("Solutions found: " + solutions);
+		
+		int z = 1;
+		for (int[][] solution : solutionList) {
+			System.out.println("Solution " + z);
+			printGrid(solution, solutions);
+			z++;
+		}
+
 		return Integer.toString(solutions);
 	}
 
@@ -349,7 +370,6 @@ public class Solver {
 	}
 
 	private void printGrid(int grid[][], int solutions) {
-		System.out.println("Current number of Solutions: " + solutions);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				System.out.printf("%3d", grid[i][j]);
