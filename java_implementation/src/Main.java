@@ -77,14 +77,33 @@ public class Main {
 				panelButton[i][j].setForeground(Color.WHITE);
 				panelButton[i][j].setFont(new Font("Arial", Font.PLAIN, 40));
 				
-				// Add a listener whenever the button is clicked
-				panelButton[i][j].addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e){	
-						String temp = JOptionPane.showInputDialog("INPUT: ");
-						board[a][b] = Integer.parseInt(temp);
-						panelButton[a][b].setText(temp.equals("0") ? "" : temp);
-					}
-				});
+				
+				final boolean x = sudokuX.isSelected();
+				final boolean y = sudokuY.isSelected();
+				
+				
+				if(String.valueOf(board[i][j]).equals("0")){
+					// Add a listener whenever the button is clicked
+					panelButton[i][j].addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e){	
+							String temp = JOptionPane.showInputDialog("INPUT: ");
+							board[a][b] = Integer.parseInt(temp);
+							System.out.println(board[a][b]);
+							if(!SOLVER.valid(board,a,b,board[a][b],x,y)){
+								panelButton[a][b].setBackground(Color.RED);
+							}
+							else{
+								panelButton[a][b].setBackground(Color.BLACK);
+								
+							}
+							
+							panelButton[a][b].setText(temp.equals("0") ? "" : temp);
+							if(Solved(panelButton)){
+								System.out.println("Tang ina mo jepoy dizon");
+							}
+						}
+					});
+				}		
 
 				boardPanel.add(panelButton[i][j]);
 			}
@@ -96,8 +115,11 @@ public class Main {
 				selectedX = sudokuX.isSelected();
 				selectedY = sudokuY.isSelected();
 				
-				int solutions =  SOLVER.solve(selectedX, selectedY);
-				output.setText(solutions + "");
+				if(Solvable(panelButton)){
+					int solutions =  SOLVER.solve(selectedX, selectedY);
+					output.setText(solutions + "");
+				}		
+				
 			}
 		});		
 
@@ -113,6 +135,28 @@ public class Main {
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
+
+	private static boolean Solved(JButton[][] panelButton){
+		for(int i=0;i<N;i++){
+			for(int j=0;j<N;j++){
+				if(panelButton[i][j].getBackground() == Color.RED || panelButton[i][j].getText().equals("")){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	private static boolean Solvable(JButton[][] panelButton){
+		for(int i=0;i<N;i++){
+			for(int j=0;j<N;j++){
+				if(panelButton[i][j].getBackground() == Color.RED){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 
 	private static void ReadFile(String path) throws IOException {
 		// Load the file
