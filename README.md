@@ -1,1 +1,1 @@
-# cmsc142_project
+# A Simple Sudoku Solver using Backtracking
